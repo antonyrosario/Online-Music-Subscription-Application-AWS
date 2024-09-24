@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-area {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .subscription-area,
+    .query-area {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="submit"],
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover,
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .logout-btn {
+      display: block;
+      text-align: center;
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    .logout-btn:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="user-area">
+    <h1>Welcome to Music Subscription application, {{ user_name }}!</h1>
+  </div>
+
+  <!-- Subscription area -->
+  <div class="subscription-area">
+    <h2>Subscribed Music</h2>
+    <table>
+      <thead>
+      <tr>
+        <th>Title</th>
+        <th>Artist</th>
+        <th>Year</th>
+        <th>Artist Image</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for music in subscribed_music %}
+      <tr>
+        <td>{{ music.title }}</td>
+        <td>{{ music.artist }}</td>
+        <td>{{ music.year }}</td>
+        <td><img src="{{ music.artist_image_url }}" alt="{{ music.artist }}" width="100" height="100"></td>
+        <td>
+          <form action="/remove_music" method="post">
+            <input type="hidden" name="subid" value="{{ music.subid }}">
+            <input type="hidden" name="email" value="{{ music.email }}">
+            <input type="hidden" name="title" value="{{ music.title }}">
+            <input type="hidden" name="artist" value="{{ music.artist }}">
+            <input type="hidden" name="year" value="{{ music.year }}">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Query area -->
+  <div class="query-area">
+    <h2>Query Music</h2>
+    <form method="post" action="/query_music">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title"><br><br>
+      <label for="artist">Artist:</label>
+      <input type="text" id="artist" name="artist"><br><br>
+      <label for="year">Year:</label>
+      <input type="text" id="year" name="year"><br><br>
+      <input type="submit" value="Query">
+    </form>
+    {% if msg1 %}
+    <h3>{{ msg1 }}!</h3>
+    {% else %}
+    {% if queried_items %}
+    <table>
+      <tr>
+        <th>Title</th>
+        <th>Artist</th>
+        <th>Year</th>
+        <th>Image</th>
+        <th>Action</th>
+      </tr>
+      {% for item in queried_items %}
+      <tr>
+        <td>{{ item['title'] }}</td>
+        <td>{{ item['artist'] }}</td>
+        <td>{{ item['year'] }}</td>
+        <td><img src="{{ item['url'] }}" alt="{{ item['artist'] }}" width="100" height="100"></td>
+        <td>
+          <form method="post" action="/subscribe_music">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="title" value="{{ item['title'] }}">
+            <input type="hidden" name="artist" value="{{ item['artist'] }}">
+            <input type="hidden" name="year" value="{{ item['year'] }}">
+            <input type="submit" value="Subscribe">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% endif %}
+  </div>
+
+  <!-- Logout button -->
+  <a href="{{ url_for('logout')}}" class="logout-btn">Logout</a>
+</div>
+</body>
+</html>
